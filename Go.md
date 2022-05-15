@@ -73,6 +73,16 @@ var (
 
 
 
+
+
+In Go, `:=` is for declaration + assignment, whereas `=` is for assignment only.
+
+For example, `var foo int = 10` is the same as `foo := 10`.
+
+
+
+
+
 ```go
 
 package main
@@ -566,6 +576,567 @@ f := float64(i)
 u := uint(f)
 
 ```
+
+
+
+### Type Assersion
+
+
+
+
+
+### Structs
+
+
+
+A **struct** is a collection of fields/properties. You can define new types as structs or [interfaces](https://www.educative.io/collection/page/10370001/6199152924950528/5454560214646784/).
+
+
+
+struct declaration:
+
+
+
+```go
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type Bootcamp struct {
+	// Latitude of the event
+	Lat float64
+	// Longitude of the event
+	Lon float64
+	// Date of the event
+	Date time.Time
+}
+
+func main() {
+	fmt.Println(Bootcamp{
+		Lat:  34.012836,
+		Lon:  -118.495338,
+		Date: time.Now(),
+	})
+}
+
+
+Output:
+
+{34.012836 -118.495338 2022-05-15 03:05:03.477758773 +0000 UTC}
+
+```
+
+
+
+Declaration of struct literals:
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+type Point struct {
+	X, Y int
+}
+
+var (
+	p = Point{1, 2}  // has type Point
+	q = &Point{1, 2} // has type *Point
+	r = Point{X: 1}  // Y:0 is implicit
+	s = Point{}      // X:0 and Y:0
+)
+
+func main() {
+	fmt.Println(p, q, r, s)
+}
+
+
+Output:
+{1 2} &{1 2} {1 0} {0 0}
+
+
+```
+
+
+
+Accessing fields using the dot notation:
+
+
+
+```go
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type Bootcamp struct {
+	Lat, Lon float64
+	Date     time.Time
+}
+
+func main() {
+	event := Bootcamp{
+		Lat: 34.012836,
+		Lon: -118.495338,
+	}
+	event.Date = time.Now()
+	fmt.Printf("Event on %s, location (%f, %f)",
+		event.Date, event.Lat, event.Lon)
+
+}
+
+
+Output:
+
+Event on 2022-05-15 03:07:47.185464322 +0000 UTC, location (34.012836, -118.495338)
+
+```
+
+
+
+
+
+### Initialising
+
+Using the `new` key expression
+
+
+
+```go
+x := new(int)
+```
+
+
+
+Note that following expressions using `new` and an empty struct literal are equivalent and result in the same kind of allocation/initialization:
+
+
+
+```go
+
+package main
+
+import (
+	"fmt"
+)
+
+type Bootcamp struct {
+	Lat float64
+	Lon float64
+}
+
+func main() {
+	x := new(Bootcamp)
+	// To get the pointer of a value, use the `&` symbol in front of the value; 
+	y := &Bootcamp{}
+	// To dereference a pointer, use the `*` symbol.
+	fmt.Println(*x == *y)
+}
+
+Output
+true
+
+```
+
+
+
+### Composition vs Inheritance
+
+
+Coming from an [OOP](http://en.wikipedia.org/wiki/Object-oriented_programming) background a lot of us are used to inheritance, something that isn’t supported by Go. Instead you have to think in terms of *composition* and *interfaces*.
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+type User struct {
+	Id       int
+	Name     string
+	Location string
+}
+
+//type Player with one additional attribute
+
+type Player struct {
+	Id       int  
+	Name     string
+	Location string
+	GameId	 int
+}
+
+func main() {
+	p := Player{}
+	p.Id = 42
+	p.Name = "Matt"
+	p.Location = "LA"
+	p.GameId = 90404
+	fmt.Printf("%+v", p) // the value in a default format when printing structs,
+                        // the plus flag (%+v) adds field names
+}
+
+Output:
+
+{Id:42 Name:Matt Location:LA GameId:90404}
+
+```
+
+
+
+```go
+
+type User struct {
+	Id             int
+	Name, Location string
+}
+
+type Player struct {
+	User //user will contain all the required attributes
+	GameId int
+}
+```
+
+
+
+We can initialize a new variable of type `Player` two different ways.
+
+
+
+1. Using the dot notation to set the fields:
+
+```go
+
+package main
+
+import "fmt"
+
+type User struct {
+	Id             int
+	Name, Location string
+}
+
+type Player struct {
+	User
+	GameId int
+}
+
+func main() {
+	p := Player{} //initializing
+	p.Id = 42
+	p.Name = "Matt"
+	p.Location = "LA"
+	p.GameId = 90404
+	fmt.Printf("%+v", p)
+}
+
+Output:
+{User:{Id:42 Name:Matt Location:LA} GameId:90404}
+
+```
+
+
+
+2. The other option is to use a struct literal:
+
+```go
+
+package main
+
+import "fmt"
+
+type User struct {
+	Id             int
+	Name, Location string
+}
+
+type Player struct {
+	User
+	GameId int
+}
+
+func main() {
+  
+  //we can’t just pass the composed fields. We instead need to pass the types composing the struct.
+	p := Player{
+		User{Id: 42, Name: "Matt", Location: "LA"},
+		90404,
+	}
+	fmt.Printf(
+		"Id: %d, Name: %s, Location: %s, Game id: %d\n",
+		p.Id, p.Name, p.Location, p.GameId)
+	// Directly set a field defined on the Player struct
+	p.Id = 11
+	fmt.Printf("%+v", p)
+}
+
+
+Output:
+Id: 42, Name: Matt, Location: LA, Game id: 90404
+{User:{Id:11 Name:Matt Location:LA} GameId:90404}
+
+
+```
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+type User struct {
+	Id             int
+	Name, Location string
+}
+
+???
+func (u *User) Greetings() string {
+	return fmt.Sprintf("Hi %s from %s",
+		u.Name, u.Location)
+}
+
+type Player struct {
+	User
+	GameId int
+}
+
+func main() {
+	p := Player{}
+	p.Id = 42
+	p.Name = "Matt"
+	p.Location = "LA"
+	fmt.Println(p.Greetings())
+}
+
+```
+
+
+
+```go
+
+package main
+
+import (
+	"log"
+	"os"
+)
+
+type Job struct {
+	Command string
+	Logger  *log.Logger
+  // Or We can skip defining the field for our logger and now all the methods available on a pointer to log.Logger are available from our struct:
+ 	*log.Logger
+}
+
+func main() {
+	job := &Job{"demo", log.New(os.Stdout, "Job: ", log.Ldate)}
+	// same as
+	// job := &Job{Command: "demo",
+	//            Logger: log.New(os.Stderr, "Job: ", log.Ldate)}
+	job.Logger.Print("test")
+}
+
+
+Output
+Job: 2022/05/15 test
+
+```
+
+
+
+### Exercise on Composition
+
+
+
+```go
+
+package main
+import "fmt"
+import "encoding/json"
+
+
+type User struct {
+	Id             int
+	Name, Location string
+}
+
+func (u User) Greetings() string {
+	return fmt.Sprintf("Hi %s from %s",
+                     u.Name, u.Location)
+}
+
+type Player struct {
+	u User
+	GameId int
+}
+
+func GreetingsForPlayer(p Player) string{
+	return p.u.Greetings();
+}
+
+```
+
+
+
+## Collection types
+
+
+
+### Arrays
+
+declares a variable `a` as an array of ten integers.
+
+```go
+var a [10]int
+```
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	var a [2]string
+	a[0] = "Hello"
+	a[1] = "World"
+	fmt.Println(a[0], a[1])
+	fmt.Println(a)
+
+	primes := [6]int{2, 3, 5, 7, 11, 13}  // array of prime numbers of size 6 
+	fmt.Println(primes)
+}
+
+Output:
+Hello World
+[Hello World]
+[2 3 5 7 11 13]
+
+```
+
+
+
+
+
+Finally, you can use an **ellipsis** to use an implicit length when you pass the values:
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	a := [...]string{"hello", "world!"}
+	fmt.Printf("%q", a)
+}
+
+Output:
+["hello" "world!"]
+
+```
+
+
+
+**Printing arrays**
+
+Note how we used the [`fmt` package](http://golang.org/pkg/fmt/) using `Printf` and used the `%q` “verb” to print each element quoted.
+
+If we had used `Println` or the `%s` verb, we would have had a different result:
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	a := [2]string{"hello", "world!"}
+	fmt.Println(a)
+	// [hello world!]
+	fmt.Printf("%s\n", a)
+	// [hello world!]
+	fmt.Printf("%q\n", a)
+	// ["hello" "world!"]
+}
+
+Output:
+[hello world!]
+[hello world!]
+["hello" "world!"]
+
+```
+
+
+
+**Multi-dimensional arrays**
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	var a [2][3]string
+	for i := 0; i < 2; i++ {
+		for j := 0; j < 3; j++ {
+			a[i][j] = fmt.Sprintf("row %d - column %d", i+1, j+1)
+		}
+	}
+	fmt.Printf("%q", a)
+	// [["row 1 - column 1" "row 1 - column 2" "row 1 - column 3"]
+	//  ["row 2 - column 1" "row 2 - column 2" "row 2 - column 3"]]
+}
+
+```
+
+
+
+```go
+
+package main
+
+func main() {
+  
+  	// Trying to access or set a value at an index that doesn’t exist will prevent your program from compiling
+    var a [2]string
+    a[3] = "Hello"
+}
+
+Output
+# command-line-arguments
+./main.go:5: invalid array index 3 (out of bounds for 2-element array)
+
+```
+
+
+
+
+
+
 
 
 
