@@ -1134,6 +1134,227 @@ Output
 
 
 
+### Slices
+
+Slices wrap arrays to give a more general, powerful, and convenient interface to sequences of data. 
+
+
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+    p := []int{2, 3, 5, 7, 11, 13}
+    fmt.Println(p)
+    // [2 3 5 7 11 13]
+}
+
+```
+
+
+
+Slicing a slice
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	mySlice := []int{2, 3, 5, 7, 11, 13}
+	fmt.Println(mySlice)
+	// [2 3 5 7 11 13]
+
+	fmt.Println(mySlice[1:4])
+	// [3 5 7]
+
+	// missing low index implies 0
+	fmt.Println(mySlice[:3])
+	// [2 3 5]
+
+	// missing high index implies len(s)
+	fmt.Println(mySlice[4:])
+	// [11 13]
+}
+
+```
+
+
+
+Slices hold references to an underlying array, and if you assign one slice to another, both refer to the same array. If a function takes a slice argument, changes it makes to the elements of the slice will be visible to the caller, analogous to passing a pointer to the underlying array.
+
+
+
+```go
+
+package main
+import "fmt"
+
+func main() {
+	names := [4]string{
+		"John",
+		"Paul",
+		"George",
+		"Ringo",
+	}
+	fmt.Println(names) // [John Paul George Ringo]
+
+	a := names[0:2]    //slice   [John Paul]
+	b := names[1:3]      //slice b [Paul George]
+	fmt.Println(a, b) // 
+
+	b[0] = "XXX"      // value at zeroth index of slice b changed
+	fmt.Println(a, b) //  [John XXX] [XXX George]
+	fmt.Println(names) // [John XXX George Ringo]
+}
+
+```
+
+
+
+**Making slices**
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	cities := make([]string, 3)
+	cities[0] = "Santa Monica"
+	cities[1] = "Venice"
+	cities[2] = "Los Angeles"
+
+	fmt.Printf("%q", cities)
+	// ["Santa Monica" "Venice" "Los Angeles"]
+}
+
+```
+
+
+
+Appending to a slice
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	cities := []string{}
+	cities = append(cities, "San Diego")
+	fmt.Println(cities)
+	// [San Diego]
+}
+
+
+package main
+
+import "fmt"
+
+func main() {
+	cities := []string{}
+	cities = append(cities, "San Diego", "Mountain View")
+	fmt.Printf("%q", cities)
+	// ["San Diego" "Mountain View"]
+}
+
+
+// And you can also append a slice to another using an ellipsis:
+
+package main
+
+import "fmt"
+
+func main() {
+	cities := []string{"San Diego", "Mountain View"}
+	otherCities := []string{"Santa Monica", "Venice"}
+	cities = append(cities, otherCities...)
+	fmt.Printf("%q", cities)
+	// ["San Diego" "Mountain View" "Santa Monica" "Venice"]
+}
+
+```
+
+
+
+**Length**
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+	cities := []string{
+		"Santa Monica",
+		"San Diego",
+		"San Francisco",
+	}
+	fmt.Println(len(cities))
+	// 3
+	countries := make([]string, 42)
+	fmt.Println(len(countries))
+	// 42
+}
+
+```
+
+
+
+**Nil slices**
+
+The zero value of a slice is nil. A nil slice has a *length* and *capacity* of **0**.
+
+```go
+
+package main
+
+import "fmt"
+
+func main() {
+    var z []int
+    fmt.Println(z, len(z), cap(z))
+    // [] 0 0
+    if z == nil {
+        fmt.Println("nil!")
+    }
+    // nil!
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
