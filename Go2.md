@@ -1013,11 +1013,73 @@ at 2022-05-17 11:36:09.048999615 +0000 UTC, it didn't work
 
 
 
+## Concurrent programming
 
 
 
+### Goroutines
+
+A goroutine is a lightweight thread managed by the Go runtime. Goroutines can be functions or methods that run concurrently with other functions or methods
+
+```go
+go f(x, y, z)
+```
 
 
+
+The evaluation of `f`, `x`, `y`, and `z` happens in the current goroutine, and the execution of `f` happens in the new goroutine.
+
+
+
+```go
+
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func say(s string) {
+	for i := 0; i < 5; i++ {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Println(s)
+	}
+}
+
+func main() {
+  go say("world") //parallel execution: both calls to say() will execute concurrently
+	say("hello")
+}
+
+
+Output:
+hello
+world
+hello
+world
+world
+hello
+hello
+world
+hello
+world
+
+```
+
+
+
+### Channels
+
+Channels are pipes through which you can send and receive values using the channel operator, `<-`.
+
+```go
+
+ch <- v    // Send v to channel ch.
+v := <-ch  // Receive from ch, and
+           // assign value to v.
+
+```
 
 
 
