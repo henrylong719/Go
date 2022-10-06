@@ -507,17 +507,19 @@ func newRelease(a *Artist) int { //passing an Artist by reference
 
 func main() {
 	me := &Artist{Name: "Matt", Genre: "Electro", Songs: 42}
-	fmt.Printf("%s released their %dth song\n", me.Name, newRelease(me))
+	fmt.Printf("%s released their %dth songs\n", me.Name, newRelease(me))
 	fmt.Printf("%s has a total of %d songs", me.Name, me.Songs)
 }
+
+
+Matt released their 43th songs
+Matt has a total of 43 songs
 
 ```
 
 
 
 The only change between the two versions is that `newRelease` takes a pointer to an `Artist` value and when I initialize our `me` variable, I used the `&` symbol to get a pointer to the value.
-
-
 
 
 
